@@ -82,6 +82,13 @@ const app = {
         }
 
     ],
+    scrollEventFunc: () => {
+        let curCdWidth = 200 - window.scrollY
+        cd.style.width = (curCdWidth > 0 ? curCdWidth : 0) + 'px'
+        cd.style.opacity = curCdWidth / 200
+        playlist.style.marginTop = $('.dashboard').offsetHeight + 'px'
+    },
+
     isInViewport: (el) => {
         const rect = el.getBoundingClientRect();
         return (
@@ -95,7 +102,7 @@ const app = {
 
     render: function () {
         htmls = this.songs.map((song, index) => `
-            <div class="song index-${index}" onclick = 'app.loadSong(${index})'>
+            <div class="song index-${index}" onclick = 'app.clickOnSong(${index})'>
                 <div class="thumb"
                     style="background-image: url('${song.img}')">
                 </div>
@@ -112,6 +119,7 @@ const app = {
     },
 
     loadSong: (index) => {
+        window.onscroll = () => { }
         app.isPlaying = true
         $('.player').classList.add('playing')
         app.curIndex = index
@@ -123,9 +131,20 @@ const app = {
         if (!app.isInViewport($(`.song.index-${index}`))) {
             $(`.song.index-${index}`).scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
         }
+        playlist.style.marginTop = $('.dashboard').offsetHeight + 'px'
 
         audio.play()
-
+        setTimeout(function () {
+            window.onscroll = app.scrollEventFunc
+        }, 500)
+    },
+    clickOnSong: (index) => {
+        if (window.event.target.closest('.option'))
+            console.log(123)
+        else {
+            if (!window.event.target.closest('.active') || !app.isPlaying)
+                app.loadSong(index)
+        }
     },
 
     randomSongIndex: () => {
@@ -244,11 +263,17 @@ const app = {
         })
 
         const cdWidth = cd.offsetWidth
-        window.onscroll = () => {
-                let curCdWidth = cdWidth - window.scrollY
-                cd.style.width = (curCdWidth > 0 ? curCdWidth : 0) + 'px'
-                cd.style.opacity = curCdWidth / cdWidth
-        }
+
+        // const cdWidth = cd.offsetWidth
+        // window.onscroll = e => {
+        //     console.log('hehe')
+        //     let curCdWidth = cdWidth - window.scrollY
+        //     cd.style.width = (curCdWidth > 0 ? curCdWidth : 0) + 'px'
+        //     cd.style.opacity = curCdWidth / cdWidth
+        // }
+
+
+        window.onscroll = app.scrollEventFunc
 
         const cdAnimate = cdThumb.animate([
             { transform: 'rotate(360deg)' }
@@ -277,6 +302,10 @@ const app = {
         $('.song.index-0').classList.add('active')
         app.curL.length = app.songs.length
         app.curL.fill(false)
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        })
     },
 
     start: function () {
