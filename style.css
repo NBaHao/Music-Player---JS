@@ -37,7 +37,7 @@ html {
 }
 
 .dashboard {
-    padding: 16px 16px 14px;
+    padding: 16px 16px 24px;
     background-color: #fff;
     position: fixed;
     top: 0;
@@ -84,7 +84,7 @@ header h2 {
     display: flex;
     align-items: center;
     justify-content: space-around;
-    padding: 18px 0 8px 0;
+    padding: 18px 0 0 0;
 }
 
 .control .btn {
@@ -151,6 +151,22 @@ header h2 {
     width: 0;
     height: 100%;
     background-color: #ec1f55;
+}
+
+.time {
+    position: absolute;
+    top: 24px;
+    line-height: 1.5;
+    font-family: Inter,sans-serif;
+    font-weight: 600;
+    opacity: 0.6;
+}
+.time.left {
+    left: 2px;
+}
+
+.time.right {
+    right: 2px
 }
 
 /* PLAYLIST */

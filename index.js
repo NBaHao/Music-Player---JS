@@ -11,6 +11,8 @@ const prevBtn = $('.btn-prev')
 const nextBtn = $('.btn-next')
 const randomBtn = $('.btn-random')
 const repeatBtn = $('.btn-repeat')
+const timeLeft = $('.time.left')
+const timeRight = $('.time.right')
 const cd = $('.cd')
 
 const app = {
@@ -21,10 +23,10 @@ const app = {
     curL: [],
     songs: [
         {
-            name: "Made You Look",
-            singer: "Meghan Trainor",
-            img: "./asset/img/1.webp",
-            src: "./asset/mp3/1.mp3"
+            name: "Golden Hour",
+            singer: "JVKE",
+            img: "./asset/img/4.webp",
+            src: "./asset/mp3/4.mp3"
         },
         {
             name: "STAY",
@@ -39,10 +41,10 @@ const app = {
             src: "./asset/mp3/3.mp3"
         },
         {
-            name: "Golden Hour",
-            singer: "JVKE",
-            img: "./asset/img/4.webp",
-            src: "./asset/mp3/4.mp3"
+            name: "Made You Look",
+            singer: "Meghan Trainor",
+            img: "./asset/img/1.webp",
+            src: "./asset/mp3/1.mp3"
         },
         {
             name: "Radio",
@@ -110,9 +112,9 @@ const app = {
                     <h3 class="title">${song.name}</h3>
                     <p class="author">${song.singer}</p>
                 </div>
-                <div class="option">
-                    <i class="fas fa-ellipsis-h"></i>
-                </div>
+                <a class="option" href="${song.src}" download = "${song.name}">
+                    <i class="fas fa-download"></i>
+                </a>
             </div>
         `).join('')
         playlist.innerHTML = htmls
@@ -127,7 +129,6 @@ const app = {
         audio['src'] = app.songs[index]['src']
         title.innerHTML = app.songs[index]['name']
         cdThumb.style.backgroundImage = `url('${app.songs[index]['img']}')`
-
         if (!app.isInViewport($(`.song.index-${index}`))) {
             $(`.song.index-${index}`).scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
         }
@@ -139,8 +140,9 @@ const app = {
         }, 500)
     },
     clickOnSong: (index) => {
-        if (window.event.target.closest('.option'))
-            console.log(123)
+        if (window.event.target.closest('.option')){
+
+        }
         else {
             if (!window.event.target.closest('.active') || !app.isPlaying)
                 app.loadSong(index)
@@ -169,13 +171,24 @@ const app = {
             }
         }
 
-        audio.ontimeupdate = (e) => {
-            if (!e.target.duration)
-                progress.value = 0
-            else
-                progress.value = e.target.currentTime / e.target.duration * 100
-            $('.bar .fill').style.width = progress.value + '%'
+        function audioEventUpdate() {
+            let timeDrutionText
+                if (!audio.duration) {
+                    progress.value = 0
+                    timeDrutionText = 0
+                }
+                else {
+                    progress.value = audio.currentTime / audio.duration * 100
+                    timeDrutionText = audio.duration * 1000
+                }
+                const barFill = $('.bar .fill')
+                barFill.style.width = progress.value + '%'
+                timeLeft.innerText = new Date(audio.currentTime*1000).toISOString().substring(14, 19)
+                if (timeDrutionText)
+                    timeRight.innerText = new Date(timeDrutionText).toISOString().substring(14, 19)
         }
+
+        audio.ontimeupdate = audioEventUpdate
 
         progress.onchange = () => {
             if (!app.isPlaying) {
@@ -192,22 +205,10 @@ const app = {
         }
 
         progress.onmouseup = () => {
-            audio.ontimeupdate = (e) => {
-                if (!e.target.duration)
-                    progress.value = 0
-                else
-                    progress.value = e.target.currentTime / e.target.duration * 100
-                $('.bar .fill').style.width = progress.value + '%'
-            }
+            audio.ontimeupdate = audioEventUpdate
         }
         progress.ontouchend = () => {
-            audio.ontimeupdate = (e) => {
-                if (!e.target.duration)
-                    progress.value = 0
-                else
-                    progress.value = e.target.currentTime / e.target.duration * 100
-                $('.bar .fill').style.width = progress.value + '%'
-            }
+            audio.ontimeupdate = audioEventUpdate
         }
 
 
@@ -222,6 +223,7 @@ const app = {
             }
 
         }
+
 
         repeatBtn.onclick = () => {
             app.isRepeat = !app.isRepeat
@@ -261,17 +263,6 @@ const app = {
                 toglePlayBtn.click()
             }
         })
-
-        const cdWidth = cd.offsetWidth
-
-        // const cdWidth = cd.offsetWidth
-        // window.onscroll = e => {
-        //     console.log('hehe')
-        //     let curCdWidth = cdWidth - window.scrollY
-        //     cd.style.width = (curCdWidth > 0 ? curCdWidth : 0) + 'px'
-        //     cd.style.opacity = curCdWidth / cdWidth
-        // }
-
 
         window.onscroll = app.scrollEventFunc
 
